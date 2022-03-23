@@ -120,7 +120,7 @@ static void check_curl_code(CURLcode code, const char * error_buffer = nullptr) 
 
 
 int main(int argc, char * argv[]) {
-    TCLAP::CmdLine cmd("JSON bomber", ' ', "1.0");
+    TCLAP::CmdLine cmd("JSON bomber", ' ', JSON_BOMB_VERSION);
     TCLAP::UnlabeledValueArg<std::string> urlArg("url", "http url of the service to call", true, "http://localhost:80", "url", cmd);
     TCLAP::SwitchArg verboseSwitch("v", "verbose", "Verbose curl switch", cmd, false);
     TCLAP::SwitchArg followSwitch("L", "location", "Follows HTTP redirect", cmd, false);
