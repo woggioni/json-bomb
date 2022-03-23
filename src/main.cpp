@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <map>
+#include <string>
 #include <fstream>
 
 #include <curl/curl.h>
@@ -125,6 +126,7 @@ int main(int argc, char * argv[]) {
     TCLAP::SwitchArg followSwitch("L", "location", "Follows HTTP redirect", cmd, false);
     TCLAP::SwitchArg compressionSwitch("Z", "compression", "Enable response compression", cmd, false);
     TCLAP::ValueArg<std::string> methodArg("X", "request", "HTTP method", false, "GET", "USER", cmd);
+    TCLAP::MultiArg<std::string> headerArg("H", "header", "add an HTTP header", false, "USER", cmd);
     TCLAP::ValueArg<std::string> outputArg("o", "output", "Output file", false, "", "OUTPUT_FILE", cmd);
     TCLAP::ValueArg<size_t> limitArg("l", "limit", "Max number of bytes to send", false, -1, "MAX_BYTES", cmd);
     TCLAP::ValueArg<size_t> timeoutArg("t", "timeout", "Request timeout in milliseconds", false, 0, "TIMEOUT", cmd);
@@ -170,7 +172,6 @@ int main(int argc, char * argv[]) {
     if(httpMethod == "POST" || httpMethod == "PUT") {
         header_list.slist = curl_slist_append(header_list.slist, "Content-Type: application/json");
         header_list.slist = curl_slist_append(header_list.slist, "Transfer-Encoding: chunked");
-        curl_easy_setopt(curl, CURLOPT_PUT, 1L);
         if(httpMethod == "POST") {
             curl_easy_setopt(curl, CURLOPT_HTTPPOST, 1L);
         } else if(httpMethod == "PUT") {
@@ -181,7 +182,9 @@ int main(int argc, char * argv[]) {
         generator = std::make_unique<JsonBombGenerator>((size_t) limitArg);
         curl_easy_setopt(curl, CURLOPT_READDATA, generator.get());
     }
-
+    for(const std::string& header : headerArg.getValue()) {
+        header_list.slist = curl_slist_append(header_list.slist, header.c_str());
+    }
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, header_list.slist);
     CURLcode res = curl_easy_perform(curl);
     check_curl_code(res, error_buffer.data());
