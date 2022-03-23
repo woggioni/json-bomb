@@ -38,7 +38,7 @@ namespace contour {
         ssl_error(const std::string & msg)
             : error(HttpStatus::INTERNAL_SERVER_ERROR, msg) {}
     };
-};
+}
 
 struct curl_slist_guard {
     curl_slist * slist;
@@ -190,6 +190,5 @@ int main(int argc, char * argv[]) {
     check_curl_code(res, error_buffer.data());
     long code;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &code);
-    contour::HttpStatus http_status = (contour::HttpStatus) code;
     return 0;
 }
